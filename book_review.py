@@ -8,19 +8,27 @@ import os
 load_dotenv()
 cap = cv2.VideoCapture(0)
 
+barcode_cnt = 0
 while(cap.isOpened()):
     ret, frame = cap.read()
     if not ret:
-        break
+        continue
 
-    # 바코드 인식
-    barcodes = decode(frame)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    barcodes = decode(gray) # 바코드 인식
 
-    # 인식된 바코드가 있는 경우
-    if len(barcodes) > 0:
-        # 바코드 데이터 출력
-        barcode_data = barcodes[0].data.decode("utf-8")
-        print("Barcode data:", barcode_data)
+    for barcode in barcodes:
+        barcode_cnt += 1
+        x, y, w, h = barcode.rect
+        barcode_data = barcode.data.decode("utf-8")
+        barcode_type = barcode.type
+        barcode_text = '%s (%s)' % (barcode_data, barcode_type)
+        
+        # print("Barcode data:", barcode_data)
+        
+        # barcode bounding box 생성
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 5)
+        cv2.putText(frame, barcode_text, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2, cv2.LINE_AA)
 
         # ISBN 바코드인 경우 (978, 979로 시작하는 13자리 숫자)
         if (barcode_data.startswith("978") or barcode_data.startswith("979")) and len(barcode_data) == 13:
@@ -34,12 +42,18 @@ while(cap.isOpened()):
 
             if title is None:
                 title = "Not Found"
-            else:
+                
+            # 바코드가 지속적으로 10번 이상 감지될 경우 해당 도서 정보 출력
+            if barcode_cnt >= 10:
+                cap.release()
                 print("Title: ", title)
+                
         else:
             print("Not an ISBN barcode")
 
     cv2.imshow('Barcode reader', frame)
+    # cv2.imshow('grayscale', gray) 
+    
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
