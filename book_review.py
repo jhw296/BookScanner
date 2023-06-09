@@ -93,6 +93,10 @@ def text_extraction():
         cv2.imshow("perspective transform", dst)
         cv2.imshow("test", roi_image)
         
+        image_pdf = Image.fromarray(roi_image)
+        image_pdf = image_pdf.convert('RGB')
+        image_pdf.save('./img/pdf_image.pdf')
+        
         if flag == 1:
             test = pytesseract.image_to_string(roi_image, lang='eng')
             # test = pytesseract.image_to_string(roi_image, lang='kor')
