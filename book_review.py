@@ -2,10 +2,13 @@ import cv2
 from pyzbar.pyzbar import decode
 import requests
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 cap = cv2.VideoCapture(0)
 
-while True:
+while(cap.isOpened()):
     ret, frame = cap.read()
     if not ret:
         break
@@ -21,19 +24,18 @@ while True:
 
         # ISBN 바코드인 경우 (978, 979로 시작하는 13자리 숫자)
         if (barcode_data.startswith("978") or barcode_data.startswith("979")) and len(barcode_data) == 13:
-            # isbn = barcode_data[3:12]
             isbn = barcode_data
-            # print(isbn)
-            # 네이버 쇼핑에서 책 제목 검색
-            url = f"https://search.shopping.naver.com/book/search?bookTabType=ALL&pageIndex=1&pageSize=40&query={isbn}"
+            key = os.environ.get('key')
+            url = f"https://www.nl.go.kr/NL/search/openApi/search.do?key={key}&detailSearch=true&isbnOp=isbn&isbnCode={isbn}"
             response = requests.get(url)
             soup = BeautifulSoup(response.content, 'html.parser') # html 파일
-            # print(soup)
-            title = soup.find('span', {'class':'bookListItem_text__bglOw'}).find('span').text
+            
+            title = soup.find('title_info').text
 
             if title is None:
                 title = "Not Found"
-            print("Title: ", title)
+            else:
+                print("Title: ", title)
         else:
             print("Not an ISBN barcode")
 
