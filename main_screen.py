@@ -82,19 +82,25 @@ class MainScreen(QWidget):
             self.grid_layout.setRowMinimumHeight(row, self.widget_height // 4) 
             for col in range(3):
                 self.grid_layout.setColumnMinimumWidth(col, self.widget_width // 3)
-                index = row * 4 + col
+                index = row * 3 + col
                 if index < len(self.image_paths):
                     if self.image_paths[row * 3 + col]:
                         image_path = self.image_paths[row * 3 + col]
-                        self.image_label = QLabel(self)
-                        pixmap = QPixmap(image_path).scaled(70, 100)
-                        self.image_label.setPixmap(pixmap)
-                        self.image_label.setScaledContents(False)
-                        self.grid_layout.addWidget(self.image_label, row, col)
-                    else:
-                        continue
-
+                        self.create_bookimg_button(image_path, row, col)
+                else:
+                    continue
+               
         self.show()
+        
+    def create_bookimg_button(self, image_path, row, col):
+        self.bookimg_btn = QPushButton(self)
+        self.bookimg_btn.setFixedSize(70, 100)
+        pixmap = QPixmap(image_path).scaled(self.bookimg_btn.size())
+        self.bookimg_btn.setIcon(QIcon(pixmap))
+        self.bookimg_btn.setIconSize(self.bookimg_btn.size())
+        # self.bookimg_btn.clicked.connect(lambda: self.open_image(image_path))
+        self.bookimg_btn.clicked.connect(lambda: print("hi"))
+        self.grid_layout.addWidget(self.bookimg_btn, row, col)
 
 class InfoScreen(QWidget):
     closed = pyqtSignal()
@@ -121,7 +127,7 @@ class InfoScreen(QWidget):
         cap_cnt = len(self.image_paths) + 1
         image_array = np.frombuffer(image_data, np.uint8)
         save_image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-        save_image_path = f"./img/image{cap_cnt}.jpg"
+        save_image_path = f"./img/books/image{cap_cnt}.jpg"
         cv2.imwrite(save_image_path, save_image)
         self.image_paths.append(save_image_path)
         print(self.image_paths)
