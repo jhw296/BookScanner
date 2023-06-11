@@ -1,62 +1,112 @@
+import cv2
 import sys
 import requests
+import numpy as np
 import barcode_recognition as barR
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt, pyqtSignal
 
-class MainScreen(QWidget):
+class MainScreen(QWidget):    
     def __init__(self):
         super().__init__()
+        self.image_paths = []
         self.info_screen = None
         self.initUI()
 
     def initUI(self):
         # 위젯 사이즈 설정
-        widget_width = 375
-        widget_height = 600
-        self.setFixedSize(widget_width, widget_height)
+        self.widget_width = 375
+        self.widget_height = 600
+        self.setFixedSize(self.widget_width, self.widget_height)
 
+        background_image_path = "./img/bookself.png"
+        self.background_image = QPixmap(background_image_path)
+        self.background_label = QLabel(self)
+        self.background_label.setPixmap(self.background_image)
+        self.background_label.setGeometry(0, 0, self.widget_width, self.widget_height)
+        
+        # 책 각 위치에 출력하는 부분
+        self.grid_layout = QGridLayout(self)
+        self.grid_layout.setContentsMargins(50, 10, 10, 10)
+        self.grid_layout.setSpacing(0)
+
+        self.creat_search_btn()
+        
+    def creat_search_btn(self):
         # 버튼 생성 및 스타일 설정
-        button_size = 100
+        button_size = 50
         button_x = 20
-        button_y = widget_height - button_size - 20
+        button_y = self.widget_height - button_size - 20
 
-        btn = QPushButton('barcode', self)
+        btn = QPushButton(self)
         btn.setGeometry(button_x, button_y, button_size, button_size)
-        btn.setStyleSheet("background-color: #f0f0f0; border-radius: 50%; font-size: 18px;")
+        btn.setStyleSheet(" border-radius: 50%;")
+        btn_image_path = "./img/search_icon.png"
+        
+        btn_image = QPixmap(btn_image_path)
+        btn_image = btn_image.scaled(button_size, button_size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+
+        icon = QIcon(btn_image)
+        btn.setIcon(icon)
+        btn.setIconSize(btn.size())
 
         btn.clicked.connect(self.barcode_recognition)
-
-        self.setWindowTitle('Quit Button')
-
+        self.setWindowTitle('mainscreen')
+        
     def barcode_recognition(self):
         self.hide()
         barR.barcorde_recognition()
-        # self.close()
+        self.close()
         self.show_info_screen()
     
     def show_info_screen(self):
         print('Open InfoScreen')
-        self.info_screen = InfoScreen()
+        self.info_screen = InfoScreen(self.image_paths)
+        self.info_screen.closed.connect(self.update_image_paths)
         self.info_screen.closed.connect(self.show_main_screen)
         self.info_screen.show()
 
+    def update_image_paths(self):
+        self.image_paths = self.info_screen.image_paths
+                
     def show_main_screen(self):
+        # Clear grid layout
+        while self.grid_layout.count():
+            child = self.grid_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+        self.creat_search_btn()
+
+        for row in range(4):
+            self.grid_layout.setRowMinimumHeight(row, self.widget_height // 4) 
+            for col in range(3):
+                self.grid_layout.setColumnMinimumWidth(col, self.widget_width // 3)
+                index = row * 4 + col
+                if index < len(self.image_paths):
+                    if self.image_paths[row * 3 + col]:
+                        image_path = self.image_paths[row * 3 + col]
+                        self.image_label = QLabel(self)
+                        pixmap = QPixmap(image_path).scaled(70, 100)
+                        self.image_label.setPixmap(pixmap)
+                        self.image_label.setScaledContents(False)
+                        self.grid_layout.addWidget(self.image_label, row, col)
+                    else:
+                        continue
+
         self.show()
-        self.info_screen = None
 
 class InfoScreen(QWidget):
     closed = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, image_paths):
         super().__init__()
+        self.image_paths = image_paths
         self.initUI()
 
     def initUI(self):
         # Book information from barcode recognition
         title, author, isbn, publisher, pubdata, discount, description, image_url = barR.book_info()
-        # print(title, author)
 
         # Layout
         layout = QVBoxLayout()
@@ -66,6 +116,15 @@ class InfoScreen(QWidget):
         image = QPixmap()
         image.loadFromData(image_data)
         image = image.scaledToWidth(image.width() // 3)
+        
+        # Save image
+        cap_cnt = len(self.image_paths) + 1
+        image_array = np.frombuffer(image_data, np.uint8)
+        save_image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+        save_image_path = f"./img/image{cap_cnt}.jpg"
+        cv2.imwrite(save_image_path, save_image)
+        self.image_paths.append(save_image_path)
+        print(self.image_paths)
         
         # Display image
         self.image_label = QLabel(self)
@@ -112,12 +171,14 @@ class InfoScreen(QWidget):
         self.description_scroll_area.setWidget(self.description_label)
         layout.addWidget(self.description_scroll_area)
         
-        
         self.setLayout(layout)
         self.setWindowTitle('Info Screen')
         self.setStyleSheet("background-color: white;")
 
     def closeEvent(self, event):
+        self.emit_closed_signal()
+        
+    def emit_closed_signal(self):
         self.closed.emit()
 
 if __name__ == "__main__":
