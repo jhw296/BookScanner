@@ -73,8 +73,8 @@ def barcorde_recognition():
                         
                 # 바코드가 지속적으로 10번 이상 감지될 경우 해당 도서 정보 출력
                 if barcode_cnt >= 10:
-                    path = './img/snapshot_' + str(title) + '.jpg'
-                    cv2.imwrite(path, frame)
+                    # path = './img/snapshot_' + str(title) + '.jpg'
+                    # cv2.imwrite(path, frame)
                     cap.release()
                     book_info()
                     
