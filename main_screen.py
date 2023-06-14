@@ -3,6 +3,8 @@ import sys
 import requests
 import numpy as np
 import barcode_recognition as barR
+import text_extraction as txtE
+import txtE_screen
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt, pyqtSignal
@@ -11,6 +13,7 @@ class MainScreen(QWidget):
     def __init__(self):
         super().__init__()
         self.image_paths = []
+        self.text_list = []
         self.info_screen = None
         self.initUI()
 
@@ -31,9 +34,9 @@ class MainScreen(QWidget):
         self.grid_layout.setContentsMargins(50, 10, 10, 10)
         self.grid_layout.setSpacing(0)
 
-        self.creat_search_btn()
+        self.create_search_btn()
         
-    def creat_search_btn(self):
+    def create_search_btn(self):
         # 버튼 생성 및 스타일 설정
         button_size = 50
         button_x = 20
@@ -76,7 +79,7 @@ class MainScreen(QWidget):
             child = self.grid_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
-        self.creat_search_btn()
+        self.create_search_btn()
 
         for row in range(4):
             self.grid_layout.setRowMinimumHeight(row, self.widget_height // 4) 
@@ -98,9 +101,17 @@ class MainScreen(QWidget):
         pixmap = QPixmap(image_path).scaled(self.bookimg_btn.size())
         self.bookimg_btn.setIcon(QIcon(pixmap))
         self.bookimg_btn.setIconSize(self.bookimg_btn.size())
-        # self.bookimg_btn.clicked.connect(lambda: self.open_image(image_path))
-        self.bookimg_btn.clicked.connect(lambda: print("hi"))
+        self.bookimg_btn.clicked.connect(self.show_custom)
         self.grid_layout.addWidget(self.bookimg_btn, row, col)
+        
+    def show_custom(self):
+        print('open MainScreen')
+        # self.main_screen = pdf.CustomWidget()
+        # self.main_screen = txtE.text_extraction()
+        self.txtE_screen = txtE_screen.TextDetectionApp()
+        self.txtE_screen.show()
+        # self.hide()
+
 
 class InfoScreen(QWidget):
     closed = pyqtSignal()
