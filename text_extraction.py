@@ -31,7 +31,7 @@ def text_extraction():
 
         image_pdf = Image.fromarray(resized_roi)
         image_pdf = image_pdf.convert('RGB')
-        image_pdf.save('./scanned_image.pdf')
+        # image_pdf.save('./scanned_image.pdf')
 
         text = pytesseract.image_to_string(resized_roi, lang='eng')
         print('스캔된 텍스트:')
@@ -99,7 +99,7 @@ def text_extraction():
 
     if s_button_pressed:
         image_path = './captured_image.png'
-        cv2.imwrite(image_path, image)
+        # cv2.imwrite(image_path, image)
         scan_document(image_path)
         last_txt = warp(np.copy(image))
     return last_txt
