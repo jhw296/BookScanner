@@ -8,18 +8,31 @@ class TextDetectionApp(QtWidgets.QMainWindow):
         super(TextDetectionApp, self).__init__()
 
         self.setWindowTitle("Text Detection")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(0, 0, 375, 600)
+        self.setStyleSheet("background-color: #F0F5FA;")
+        widget_width = 375
+        widget_height = 600
+        self.setFixedSize(widget_width, widget_height)
 
         self.text_box = QtWidgets.QTextEdit(self)
-        self.text_box.setGeometry(10, 10, 780, 480)
+        self.text_box.setGeometry(10, 10, 355, 495)  # Adjusted text box size
         self.text_box.setFont(QtGui.QFont("Arial", 12))
+        self.text_box.setStyleSheet("background-color: white; border-radius: 10px;")
 
-        self.add_button = QtWidgets.QPushButton("Add", self)
-        self.add_button.setGeometry(10, 500, 780, 40)
+        shadow = QtWidgets.QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(10)
+        shadow.setColor(QtGui.QColor(0, 0, 0, 100))
+        shadow.setOffset(0, 0)
+        self.text_box.setGraphicsEffect(shadow)
+
+        self.add_button = QtWidgets.QPushButton("구절 추가하기", self)
+        self.add_button.setGeometry(10, 515, 355, 35)  # Adjusted button size
+        self.add_button.setStyleSheet("background-color: #6E9EFF; color: white; font-size: 15px; font-weight: bold; border-radius: 10px; font-family: 'Arial';")
         self.add_button.clicked.connect(self.add_text)
 
-        self.complete_button = QtWidgets.QPushButton("Complete", self)
-        self.complete_button.setGeometry(10, 550, 780, 40)
+        self.complete_button = QtWidgets.QPushButton("완료", self)
+        self.complete_button.setGeometry(10, 555, 355, 35)  # Adjusted button size
+        self.complete_button.setStyleSheet("background-color: #6E9EFF; color: white; font-size: 15px; font-weight: bold; border-radius: 10px; font-family: 'Arial';")
         self.complete_button.clicked.connect(self.show_text_list)
 
         self.text_list = []
@@ -97,22 +110,29 @@ class TextDetectionApp(QtWidgets.QMainWindow):
 
     def show_text_list(self):
         self.complete_window = QtWidgets.QMainWindow()
-        self.complete_window.setWindowTitle("Complete")
-        self.complete_window.setGeometry(200, 200, 400, 300)
+        self.complete_window.setWindowTitle("M E M O")
+        self.complete_window.setGeometry(200, 200, 375, 600)
+        self.complete_window.setStyleSheet("background-color: #F0F5FA;")
 
         main_widget = QtWidgets.QWidget(self.complete_window)
         main_layout = QtWidgets.QVBoxLayout(main_widget)
+
+        main_layout.setAlignment(QtCore.Qt.AlignTop)  # Set vertical alignment to top
 
         for text in self.text_list:
             label = QtWidgets.QLabel(main_widget)
             label.setFont(QtGui.QFont("Arial", 12))
             label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
             label.setText(text)
+            label.setStyleSheet("background-color: #F1EA8B;")
+            label.adjustSize()  # Adjust the label size to fit the text content
 
             main_layout.addWidget(label)
 
         self.complete_window.setCentralWidget(main_widget)
         self.complete_window.show()
+
+
 
 
 if __name__ == "__main__":

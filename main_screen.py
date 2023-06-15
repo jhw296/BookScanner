@@ -55,7 +55,7 @@ class MainScreen(QWidget):
         btn.setIconSize(btn.size())
 
         btn.clicked.connect(self.barcode_recognition)
-        self.setWindowTitle('mainscreen')
+        self.setWindowTitle('BOOKSCANNER')
         
     def barcode_recognition(self):
         self.hide()
@@ -124,9 +124,18 @@ class InfoScreen(QWidget):
     def initUI(self):
         # Book information from barcode recognition
         title, author, isbn, publisher, pubdata, discount, description, image_url = barR.book_info()
+        self.setStyleSheet("background-color: white;")
 
         # Layout
-        layout = QVBoxLayout()
+        main_layout = QHBoxLayout()
+        layout1 = QGridLayout()
+        layout = QGridLayout()
+        
+        main_layout.addLayout(layout1)
+        main_layout.addLayout(layout)
+        
+        self.setLayout(main_layout)
+        
 
         # Load and display image
         image_data = requests.get(image_url).content
@@ -146,50 +155,50 @@ class InfoScreen(QWidget):
         # Display image
         self.image_label = QLabel(self)
         self.image_label.setPixmap(image)
-        self.image_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.image_label)
+        self.image_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # 이미지를 왼쪽 상단에 정렬
+        layout1.addWidget(self.image_label, 0, 0, Qt.AlignLeft | Qt.AlignTop)
 
         # Display title
         self.title_label = QLabel(title, self)
-        self.title_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.title_label)
+        self.title_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # 텍스트를 왼쪽 상단에 정렬
+        layout.addWidget(self.title_label, 0, 1, Qt.AlignLeft | Qt.AlignTop)
 
         # Display author
         self.author_label = QLabel(author, self)
-        self.author_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.author_label)
+        self.author_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # 텍스트를 왼쪽 상단에 정렬
+        layout.addWidget(self.author_label, 1, 1, Qt.AlignLeft | Qt.AlignTop)
         
         # Display isbn
         self.isbn_label = QLabel(isbn, self)
-        self.isbn_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.isbn_label)
+        self.isbn_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # 텍스트를 왼쪽 상단에 정렬
+        layout.addWidget(self.isbn_label, 2, 1, Qt.AlignLeft | Qt.AlignTop)
         
         # Display publisher
         self.publisher_label = QLabel(publisher, self)
-        self.publisher_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.publisher_label)
+        self.publisher_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # 텍스트를 왼쪽 상단에 정렬
+        layout.addWidget(self.publisher_label, 3, 1, Qt.AlignLeft | Qt.AlignTop)
         
-        # Display pubdata
-        self.pubdata_label = QLabel(pubdata, self)
-        self.pubdata_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.pubdata_label)
+        # # Display pubdata
+        # self.pubdata_label = QLabel(pubdata, self)
+        # self.pubdata_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # 텍스트를 왼쪽 상단에 정렬
+        # layout.addWidget(self.pubdata_label, 4, 1, Qt.AlignLeft | Qt.AlignTop)
 
         # Display discount
         self.discount_label = QLabel(discount, self)
-        self.discount_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.discount_label)
+        self.discount_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # 텍스트를 왼쪽 상단에 정렬
+        layout.addWidget(self.discount_label, 5, 1, Qt.AlignLeft | Qt.AlignTop)
         
         # Display description
         self.description_scroll_area = QScrollArea()
         self.description_scroll_area.setWidgetResizable(True)
         self.description_label = QLabel(description, self)
-        self.description_label.setAlignment(Qt.AlignCenter)
+        self.description_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # 텍스트를 왼쪽 상단에 정렬
         self.description_label.setWordWrap(True)
         self.description_scroll_area.setWidget(self.description_label)
-        layout.addWidget(self.description_scroll_area)
+        layout.addWidget(self.description_scroll_area, 6, 1, Qt.AlignLeft | Qt.AlignTop)
         
         self.setLayout(layout)
-        self.setWindowTitle('Info Screen')
+        self.setWindowTitle('Book Info')
         self.setStyleSheet("background-color: white;")
 
     def closeEvent(self, event):

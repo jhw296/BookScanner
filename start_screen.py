@@ -1,5 +1,7 @@
 import sys
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QPixmap
 from main_screen import MainScreen
 
 class StartScreen(QWidget):
@@ -16,19 +18,29 @@ class StartScreen(QWidget):
         widget_height = 600
         self.setFixedSize(widget_width, widget_height)
 
-        # 버튼 생성 및 스타일 설정
+        # Start 버튼 생성 및 스타일 설정
         button_width = 200
         button_height = 60
         button_x = (widget_width - button_width) // 2
-        button_y = (widget_height - button_height) // 2 + 200
+        button_y = (widget_height - button_height) // 2 + 127
 
-        self.start_button = QPushButton('START', self)
+        self.start_button = QPushButton('S T A R T', self)
         self.start_button.setGeometry(button_x, button_y, button_width, button_height)
-        self.start_button.setStyleSheet("background-color: #f0f0f0; border-radius: 30px; font-size: 18px;")
+        self.start_button.setStyleSheet("background-color: #6E9EFF; color: white; border-radius: 25px; font-size: 25px; font-weight: bold;")
+
+
+        # startpg_book.png 이미지 추가
+        image_label = QLabel(self)
+        image_path = "./img/startpg_book.png"
+        pixmap = QPixmap(image_path)
+        pixmap = pixmap.scaledToWidth(button_width)
+        image_label.setPixmap(pixmap)
+        image_label.setAlignment(Qt.AlignCenter)
+        image_label.setGeometry(button_x, button_y - pixmap.height() - 50, pixmap.width(), pixmap.height())
 
         self.start_button.clicked.connect(self.show_main_screen)
 
-        self.setWindowTitle('Start Page')
+        self.setWindowTitle('BOOKSCANER')
 
     def show_main_screen(self):
         print('open MainScreen')
